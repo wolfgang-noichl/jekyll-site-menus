@@ -51,6 +51,7 @@ module Jekyll
               output += renderMenuItem(context, name, value[0], level)
               submenu = value [1..value.size]
             else
+              output += renderMenuItem(context, name, false, level)
               submenu = value
             end
             # Render the sub-menu
@@ -70,31 +71,44 @@ module Jekyll
     end
 
     def renderMenuItem(context, name, value, level)
+      # If value is false, don't render a link, but plain text.
       page_url = context.environments.first["page"]["url"]
-      uri = URI(value)
-
+      if (!!value)
+        uri = URI(value)
       # Figure out if our menu item is currently selected.
+      # If the item is just a "group" item without an own page,
+      # it can't be selected.
       selected = false
-      unless (uri.absolute?)
-        base_path= uri.path[-1, 1] == '/' ? uri.path : File.dirname(uri.path)
-        path_parts = base_path.split('/')
-        if (path_parts.size > 0)
-          selected = (/^#{base_path}/ =~ page_url) != nil
-        elsif (value == '/' and page_url == '/index.html')
-          selected = true
-        else
-          selected = value == page_url
-        end
-      end
-
+      
       indent = "  " * level
-      output = "#{indent}  <a href=\"#{URI.escape(value)}\""
-      if (selected)
-        output += " class=\"selected\""
+      output = "#{indent}  "
+
+        # unless (uri.absolute?)
+          #base_path = uri.path[-1, 1] == '/' ? uri.path : File.dirname(uri.path)
+          base_path = uri.path
+          path_parts = base_path.split('/')
+          if (path_parts.size > 0)
+            selected = (/^#{base_path}/ =~ page_url) != nil
+          elsif (value == '/' and page_url == '/index.html')
+            selected = true
+          else
+            selected = value == page_url
+          end
+        # end
+      
+        output += "<a href=\"#{URI.escape(value)}\""
+        if (selected)
+         output += " class=\"selected\""
+        end
+        output += ">"
       end
-      output += ">"
+      
+
       output += name
-      output += "</a>\n"
+      if (!!value)
+        output += "</a>\n"
+      end
+      output
     end
   end
 
