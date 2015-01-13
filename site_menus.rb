@@ -73,8 +73,6 @@ module Jekyll
     def renderMenuItem(context, name, value, level)
       # If value is false, don't render a link, but plain text.
       page_url = context.environments.first["page"]["url"]
-      if (!!value)
-        uri = URI(value)
       # Figure out if our menu item is currently selected.
       # If the item is just a "group" item without an own page,
       # it can't be selected.
@@ -82,7 +80,10 @@ module Jekyll
       
       indent = "  " * level
       output = "#{indent}  "
-
+      
+      if (!!value)
+        uri = URI(value)
+   
         # unless (uri.absolute?)
           #base_path = uri.path[-1, 1] == '/' ? uri.path : File.dirname(uri.path)
           base_path = uri.path
